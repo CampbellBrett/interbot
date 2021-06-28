@@ -1,0 +1,47 @@
+version: "1"
+services:
+  - name: interbot:0.71.0
+    description: interbot
+    run: npm run start
+    port: [ '8080:8080' ]
+    domain: "staging.workflows.sh"
+    env:
+      static:
+        - PORT=8080
+      secrets:
+        - SLACK_SIGNING_SECRET
+        - SLACK_BOT_TOKEN
+    events:
+     - "github:kc-dot-io/interbot:pull_request.merged"
+    trigger:
+     - build
+     - publish
+     - start
+pipelines:
+  - name: website-build:0.4.0
+    description: build and push to registry
+    env:
+      static:
+        - DOCKER_REGISTRY=ghcr.io
+        - GITHUB_ORG=CampbellBrett
+        - GITHUB_REPO=interbot
+      secrets:
+        - DOCKER_REGISTRY_USER
+        - DOCKER_REGISTRY_PASS
+    jobs:
+      - name: build-and-push-website
+        description: build and push website
+        packages:
+          - git
+        steps:
+          - echo $DOCKER_REGISTRY_PASS | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY
+          - git clone https://$DOCKER_REGISTRY_PASS:x-oauth-basic@github.com/$GITHUB_ORG/$GITHUB_REPO && cd $GITHUB_REPO
+          - docker build -t $DOCKER_REGISTRY/$GITHUB_ORG/$GITHUB_REPO:latest .
+          - docker push $DOCKER_REGISTRY/$GITHUB_ORG/$GITHUB_REPO:latest
+    events:
+     - "github:kc-dot-io/interbot:create.tag"
+commands:
+  - name: release:0.7.0
+    description: release a build to beanstalk
+    run: bash -c "env" && echo "I'm releasing the image"
+

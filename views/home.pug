@@ -1,0 +1,23 @@
+html
+  head
+    title= title
+
+  script(src="https://studio.alan.app/web/lib/alan_lib.min.js")
+  script.
+    window.onload = function() {
+      var alanBtnInstance = alanBtn({
+        key: "fac1a7796874da427415c071ebab06562e956eca572e1d8b807a3e2338fdd0dc/stage",
+        onCommand: function (commandData) {
+          console.log(commandData)
+          if (commandData.command === "CDL") {
+            //call client code that will react on the received command
+
+            document.getElementById('CDL').innerHTML = "Hi CDL"
+          }
+        },
+        rootEl: document.getElementById("alan-btn"),
+      });
+    }
+  body
+    h1#CDL= message
+    div.alan-btn
