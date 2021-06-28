@@ -18,12 +18,12 @@ services:
      - publish
      - start
 pipelines:
-  - name: website-build:0.4.0
+  - name: website-build:0.6.0
     description: build and push to registry
     env:
       static:
         - DOCKER_REGISTRY=ghcr.io
-        - GITHUB_ORG=CampbellBrett
+        - GITHUB_ORG=campbellbrett
         - GITHUB_REPO=interbot
       secrets:
         - DOCKER_REGISTRY_USER
@@ -39,7 +39,8 @@ pipelines:
           - docker build -t $DOCKER_REGISTRY/$GITHUB_ORG/$GITHUB_REPO:latest .
           - docker push $DOCKER_REGISTRY/$GITHUB_ORG/$GITHUB_REPO:latest
     events:
-     - "github:kc-dot-io/interbot:create.tag"
+      - "github:campbellbrett/interbot:create.tag"
+      - "github:campbellbrett/interbot:push:ref==main"
 commands:
   - name: release:0.7.0
     description: release a build to beanstalk
